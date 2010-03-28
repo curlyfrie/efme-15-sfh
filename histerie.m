@@ -1,7 +1,7 @@
 function [] = histerie ()
 
 
-img = imread('walter.png');
+img = imread('walter2.jpg');
 
 ind = 1;
 blocks = cell(256,1);
