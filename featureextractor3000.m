@@ -75,7 +75,7 @@ for i = 1 : size( D, 1 )
        elseif compactness >= 0.4707 && compactness <= 0.6658 && formfactor >= 0.3625 && formfactor <= 0.4864 
             disp(strcat('Ich bin ein Schlüssel -> ',D(i).name))
        else
-            disp(strcat('nicht erkannt -> ',D(i).name))
+            disp(strcat('ich wurde nicht erkannt -> ',D(i).name))
        end
        
        
