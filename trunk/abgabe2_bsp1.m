@@ -1,24 +1,30 @@
 
 
-kNN = 20;
+kNN = 99;
+
+PICS = 100;
+FEATURES = 7;
 
 directory = 'MPEG7';
 D = dir(directory) ; 
-I = cell( 100 , 1 ) ; 
+I = cell( PICS , 1 ) ; 
+
+classes = {'apple','bat','Bone','beetle','key'};
 
 
 
+S = zeros(PICS, FEATURES);
+SC = zeros(1,PICS);
 j=1; 
 
 
-classes = {'apple','bat','Bone','beetle','key'};
 
 for i = 1 : size( D, 1 )
       
     %if D( i ).isdir == 0 && (strncmp( D( i ).name( 1 : 3 ) , 'apple' , 3)|| strncmp( D( i ).name( 1 : 3 ) , 'bat' , 3) || strncmp( D( i ).name( 1 : 3 ) , 'key' , 3) || strncmp( D( i ).name( 1 : 3 ) , 'Bone' , 3) || strncmp( D( i ).name( 1 : 3 ) , 'beetle' , 3))
     
     class=0; 
-    for (p=1:size(classes,2)) 
+    for p=1:size(classes,2) 
        if D( i ).isdir == 0 && strncmp( D( i ).name( 1 : 3 ) , classes{p} , 3)
             class=p;
             break;
@@ -73,7 +79,8 @@ j=j-1;
 
 
 
-
+errors = zeros(PICS,kNN);
+eucl = zeros(PICS,2);
 for k=1:j
     for l=1:j
         if k~=l
@@ -84,26 +91,29 @@ for k=1:j
         eucl(l,2) = SC(l);
     end
     
-    % now sort it
+    % now sort it, the pics with the shortest distance first
     [distances] = sortrows(eucl);
     
-    for p=1:kNN
-        if (distances(p,2)~=eucl(k,2)) 
-            errors(k,p)=1;
-          %  sumerrors(p)=sumerrors(p)+1;
+    %error test every picture if wrong or right
+    %needed for the graph
+    for v=1:kNN
+        if (mode(distances(1:v,2))~=eucl(k,2)) 
+            errors(k,v)=1;
         end
     end
 
     % check if desicion is right
+    % mode returns the commonest picture class
+    % if that is the actual class => right
     if (mode(distances(1:kNN,2))==eucl(k,2)) 
         disp('right');
     else 
         disp('wrong');
     end
 end
-
+sumerrors = zeros(1,20);
  for p=1:kNN 
-     sumerrors(p) = sum(errors(:,p))
+         sumerrors(p) = sum(errors(:,p));
  end
 
 
