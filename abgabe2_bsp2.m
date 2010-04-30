@@ -42,12 +42,33 @@ for k=1:length(imptest.data)
         end
     end
 
+    %nature images
+    [a,grass] = find(ismember(classarray,'GRASS')==1);
+    [a,path] = find(ismember(classarray,'PATH')==1);
+    [a,sky] = find(ismember(classarray,'SKY')==1);
     
-     %check if desicion is right
-      if (mode([distances{1:kNN,2}])==curclass) 
-          disp('right');
+    %most frequent value for kNN
+    mostfrequent = mode([distances{1:kNN,2}]);
+    
+    % right classification for nature
+    if ((mostfrequent==grass || mostfrequent==path || mostfrequent==sky) && (curclass==grass || curclass==path || curclass==sky))
+        disp('- nature');
+    % right classification for human
+    elseif ((mostfrequent~=grass && mostfrequent~=path && mostfrequent~=sky) && (curclass~=grass && curclass~=path && curclass~=sky))
+        disp('- human');
+    % wrong classification for nature
+    elseif (mostfrequent==grass || mostfrequent==path || mostfrequent==sky) 
+        disp('- wrong nature classification');
+    %wrong classification for human
+    else 
+        disp('- wrong human classification')
+    end
+    
+       %check if desicion is right
+      if (mostfrequent==curclass) 
+          disp('right class');
       else 
-          disp('wrong');
+          disp('wrong class ');
       end
 
 
