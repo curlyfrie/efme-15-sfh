@@ -21,28 +21,30 @@ for k=1:length(imptest.data)
             classindex=length(classarray)+1;
             classarray(classindex) = impdata.textdata(l);
         end
+        
             
         eucl{l,2} = classindex;
 
     end
     
+    % get class of current picture
+    [a,curclass] = find(ismember(classarray,imptest.textdata(k))==1);
 
     % now sort it
-    [distances, index] = sort([eucl{:,1}]);
-    classes=eucl(index,:);
+    [distances] = sortrows(eucl);
+    
         
-%     for p=1:kNN
-%         if (distances(p,2)~=SC(k)) 
-%             errors(k,p)=1;
-%             distances(p,2);
-%             
-%           %  sumerrors(p)=sumerrors(p)+1;
-%         end
-%     end
+    %error test every picture if wrong or right
+    %needed for the graph
+    for v=1:kNN
+        if (mode([distances{1:v,2}])~=curclass) 
+            errors(k,v)=1;
+        end
+    end
 
+    
      %check if desicion is right
-
-      if (mode([classes{1:kNN,2}])==eucl{k,2}) 
+      if (mode([classes{1:kNN,2}])==curclass) 
           disp('right');
       else 
           disp('wrong');
@@ -50,3 +52,14 @@ for k=1:length(imptest.data)
       break;
 
 end
+
+sumerrors = zeros(1,20);
+ for p=1:kNN 
+         sumerrors(p) = sum(errors(:,p));
+ end
+
+
+
+plot(1:kNN,sumerrors);
+xlabel('kNN')
+ylabel('Fehlerquote %')
