@@ -2,19 +2,19 @@
 
 imptest = importdata('segmentation.test',',');
 impdata = importdata('segmentation.data',',');
-
-
-
-PICS = length(imptest.data);
-
-
 kNN = 20;
 
+
+%declaration of data types
+PICS = length(imptest.data);
 eucl = cell(length(impdata.data),2);
 classarray = {};
 errors = zeros(PICS,kNN);
 errors2classes = zeros(PICS,kNN);
+
+%iterate through test data
 for k=1:PICS
+    %iterate through trainigsdata and calculate euclid distance
     for l=1:length(impdata.data)
         if k~=l
             eucl{l,1} = sqrt(sum((impdata.data(l,:)-imptest.data(k,:)).^2));
@@ -22,17 +22,13 @@ for k=1:PICS
             eucl{l,1} = realmax;
         end
 
-        
-        % convert string to number classes
+        % convert string to number classes (in addition to calculate mode
         [a,classindex] = find(ismember(classarray,impdata.textdata(l))==1);
         if length(classindex)<1
             classindex=length(classarray)+1;
             classarray(classindex) = impdata.textdata(l);
         end
-        
-            
         eucl{l,2} = classindex;
-
     end
     
     % get class of current picture
@@ -48,8 +44,8 @@ for k=1:PICS
     [a,sky] = find(ismember(classarray,'SKY')==1);
     
         
-    %error test every picture if wrong or right
-    %needed for the graph 
+    %error test every picture if classification in nature or human went
+    %wrong or wright
     for v=1:kNN
         mostfrequent = mode([distances{1:v,2}]); 
         if ((mostfrequent==grass || mostfrequent==foliage || mostfrequent==sky) && (curclass==grass || curclass==foliage || curclass==sky))
@@ -64,7 +60,6 @@ for k=1:PICS
         else 
             errors2classes(k,v)=1;
         end
-
     end
 
     %error test every picture if wrong or right
@@ -93,16 +88,18 @@ for k=1:PICS
         disp('- wrong human classification')
     end
     
-       %check if desicion is right
-      if (mostfrequent==curclass) 
-          disp('right class');
-      else 
-          disp('wrong class ');
-      end
+   %check if desicion is right
+  if (mostfrequent==curclass) 
+      disp('right class');
+  else 
+      disp('wrong class ');
+  end
 
 
 end
 
+
+% calculate graphs and make a wonderful looking plot
 sumerrors = zeros(1,kNN);
 sum2errors = zeros(1,kNN);
  for p=1:kNN 
