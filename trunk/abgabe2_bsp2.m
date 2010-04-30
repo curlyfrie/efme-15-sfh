@@ -41,15 +41,16 @@ for k=1:length(imptest.data)
             errors(k,v)=1;
         end
     end
-
+    mode([classes{1:kNN,2}])
+    curclass
     
      %check if desicion is right
-      if (mode([classes{1:kNN,2}])==curclass) 
+      if (mode([distances{1:kNN,2}])==curclass) 
           disp('right');
       else 
           disp('wrong');
       end
-      break;
+
 
 end
 
