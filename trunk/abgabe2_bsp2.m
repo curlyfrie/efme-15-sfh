@@ -5,20 +5,12 @@ impdata = importdata('segmentation.data',',');
 
 
 
-% kNNThis(1,imptest,impdata);
-% kNNThis(10,imptest,impdata);
-% kNNThis(20,imptest,impdata);
-
 kNN = 50;
-
-
-%function [] = kNNThis(kNN,imptest,impdata)
-
 
 
 %declaration of data types
 PICS = length(imptest.data);
-eucl = cell(length(impdata.data),2);
+eucl = cell(length(impdata.data),3);
 classarray = {};
 errors = zeros(PICS,kNN);
 errors2classes = zeros(PICS,kNN);
@@ -27,11 +19,8 @@ errors2classes = zeros(PICS,kNN);
 for k=1:PICS
     %iterate through trainigsdata and calculate euclid distance
     for l=1:length(impdata.data)
-        if k~=l
-            eucl{l,1} = sqrt(sum((impdata.data(l,:)-imptest.data(k,:)).^2));
-        else
-            eucl{l,1} = realmax;
-        end
+
+        eucl{l,1} = sqrt(sum((impdata.data(l,:)-imptest.data(k,:)).^2));
 
         % convert string to number classes (in addition to calculate mode
         [a,classindex] = find(ismember(classarray,impdata.textdata(l))==1);
@@ -40,8 +29,20 @@ for k=1:PICS
             classarray(classindex) = impdata.textdata(l);
         end
         eucl{l,2} = classindex;
+         
+        if strcmp( impdata.textdata{l} , 'GRASS') || strcmp( impdata.textdata{l} , 'SKY') || strcmp( impdata.textdata{l} , 'FOLIAGE')
+            eucl{l,3} = 1;
+        else
+            eucl{l,3} = 2;
+        end
+
+        if strcmp( imptest.textdata{k} , 'GRASS') || strcmp( imptest.textdata{k} , 'SKY') || strcmp( imptest.textdata{k} , 'FOLIAGE')
+            naturehuman = 1;
+        else
+            naturehuman = 2;
+        end
     end
-    
+
     % get class of current picture
     [a,curclass] = find(ismember(classarray,imptest.textdata(k))==1);
 
@@ -49,61 +50,61 @@ for k=1:PICS
     [distances] = sortrows(eucl);
     
     
-     %nature images
-    [a,grass] = find(ismember(classarray,'GRASS')==1);
-    [a,foliage] = find(ismember(classarray,'FOLIAGE')==1);
-    [a,sky] = find(ismember(classarray,'SKY')==1);
-    
-        
-    %error test every picture if classification in nature or human went
-    %wrong or wright
-    for v=1:kNN
-        mostfrequent = mode([distances{1:v,2}]); 
-        if ((mostfrequent==grass || mostfrequent==foliage || mostfrequent==sky) && (curclass==grass || curclass==foliage || curclass==sky))
-           
-        % right classification for human
-        elseif ((mostfrequent~=grass && mostfrequent~=foliage && mostfrequent~=sky) && (curclass~=grass && curclass~=foliage && curclass~=sky))
-           
-        % wrong classification for nature
-        elseif (mostfrequent==grass || mostfrequent==foliage || mostfrequent==sky) 
-            errors2classes(k,v)=1;
-        %wrong classification for human
-        else 
-            errors2classes(k,v)=1;
-        end
-    end
-
     %error test every picture if wrong or right
     %needed for the graph 
     for v=1:kNN
-        if (mode([distances{1:v,2}])~=curclass) 
+        if mode([distances{1:v,2}])~=curclass 
             errors(k,v)=1;
         end
+        % compare nature-human
+        if mode([distances{1:v,3}])~=naturehuman
+            errors2classes(k,v)=1;
+        end
     end
+    
+    % ALTERNATIVE CALCULATION OF HUMAN - NATURE CLASSIFICATION
+
+        %  %nature images
+        % [a,grass] = find(ismember(classarray,'GRASS')==1);
+        % [a,foliage] = find(ismember(classarray,'FOLIAGE')==1);
+        % [a,sky] = find(ismember(classarray,'SKY')==1);
+        % 
+        % 
+        % %error test every picture if classification in nature or human went
+        % %wrong or wright
+        % for v=1:kNN
+        %     mostfrequent = mode([distances{1:v,2}]); 
+        %     if ((mostfrequent==grass || mostfrequent==foliage || mostfrequent==sky) && (curclass==grass || curclass==foliage || curclass==sky))
+        % 
+        %     % right classification for human
+        %     elseif ((mostfrequent~=grass && mostfrequent~=foliage && mostfrequent~=sky) && (curclass~=grass && curclass~=foliage && curclass~=sky))
+        % 
+        %     % wrong classification for nature
+        %     elseif (mostfrequent==grass || mostfrequent==foliage || mostfrequent==sky) 
+        %         errors2classes(k,v)=1;
+        %     %wrong classification for human
+        %     else 
+        %         errors2classes(k,v)=1;
+        %     end
+        % end
+
     
     
     %most frequent value for kNN
     mostfrequent = mode([distances{1:kNN,2}]);
     
     % right classification for nature
-    if ((mostfrequent==grass || mostfrequent==foliage || mostfrequent==sky) && (curclass==grass || curclass==foliage || curclass==sky))
-        disp('- nature');
-    % right classification for human
-    elseif ((mostfrequent~=grass && mostfrequent~=foliage && mostfrequent~=sky) && (curclass~=grass && curclass~=foliage && curclass~=sky))
-        disp('- human');
-    % wrong classification for nature
-    elseif (mostfrequent==grass || mostfrequent==foliage || mostfrequent==sky) 
-        disp('- wrong nature classification');
-    %wrong classification for human
-    else 
-        disp('- wrong human classification')
+    if errors2classes(k,kNN) == 0 
+       disp('++ right nature/human');
+    else
+       disp('-- wrong nature/human');
     end
     
    %check if desicion is right
   if (mostfrequent==curclass) 
-      disp('right class');
+      disp('+right class');
   else 
-      disp('wrong class ');
+      disp('-wrong class ');
   end
 
 
