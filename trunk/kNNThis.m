@@ -75,13 +75,13 @@ for k=1:PICS
     mostfrequent = mode([distances{1:kNN,2}]);
     
     % right classification for nature
-    if ((mostfrequent==grass || mostfrequent==path || mostfrequent==sky) && (curclass==grass || curclass==path || curclass==sky))
+    if ((mostfrequent==grass || mostfrequent==foliage || mostfrequent==sky) && (curclass==grass || curclass==foliage || curclass==sky))
         disp('- nature');
     % right classification for human
-    elseif ((mostfrequent~=grass && mostfrequent~=path && mostfrequent~=sky) && (curclass~=grass && curclass~=path && curclass~=sky))
+    elseif ((mostfrequent~=grass && mostfrequent~=foliage && mostfrequent~=sky) && (curclass~=grass && curclass~=foliage && curclass~=sky))
         disp('- human');
     % wrong classification for nature
-    elseif (mostfrequent==grass || mostfrequent==path || mostfrequent==sky) 
+    elseif (mostfrequent==grass || mostfrequent==foliage || mostfrequent==sky) 
         disp('- wrong nature classification');
     %wrong classification for human
     else 
