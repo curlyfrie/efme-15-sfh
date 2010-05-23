@@ -41,6 +41,5 @@ grid on
 K = coeff(1,2).const;
 L = coeff(1,2).linear;
 Q = coeff(1,2).quadratic;
-f = sprintf('0 = %g + %g*x + %g*y + %g*x^2 + %g*x.*y + %g*y.^2',
-            K,L,Q(1,1),Q(1,2)+Q(2,1),Q(2,2))
+f = sprintf('0 = %g + %g*x + %g*y + %g*x^2 + %g*x.*y + %g*y.^2',K,L,Q(1,1),Q(1,2)+Q(2,1),Q(2,2))
 ezplot(f,[1 11 -1 7]);
