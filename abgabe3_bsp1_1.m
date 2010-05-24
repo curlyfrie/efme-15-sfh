@@ -6,10 +6,10 @@ pw1 = 0.5;
 pw2 = 1 - pw1;
 scale = -5:0.1:10;
 
-y11 = normcdf(scale,1.5,1);
-y22 = normcdf(scale,3,1);
-py11 = pw1 * y11;
-py22 = pw2 * y22;
+%y11 = normcdf(scale,1.5,1);
+%y22 = normcdf(scale,3,1);
+%py11 = pw1 * y11;
+%py22 = pw2 * y22;
 
 % calculate propabilitys
 pxw1  = calc_pxw(pw1,scale,1.5,1);
@@ -23,7 +23,7 @@ post2 = calc_posterior(pxw2,px);
 % Conditional Error
 cond = calc_conditionalerror(post1,post2);
 
-errorrate1 = calc_errorrate(post1,px);
+errorrate = calc_errorrate(post1,post2,px);
 
 
 plot(scale,pxw1,'blue')
@@ -36,15 +36,18 @@ plot(scale,post1,'blue:')
 hold on
 plot(scale,post2,'green:')
 hold on
-plot(scale,errorrate1);
+plot(scale,errorrate,'red--');
 %plot(scale,pw1-py11(:)+py22(:),'red--')
 hold on
 plot(scale,cond,'red')
 
-plot(scale,py11,'blue--')
-hold on
-plot(scale,py22,'green--')
-hold on
+% plot(scale,py11,'blue--')
+% hold on
+% plot(scale,py22,'green--')
+% hold on
+% figure(2)
+% plot(scale,errorrate,'red--');
+errorrate
 
 end
 
@@ -63,14 +66,27 @@ function post = calc_posterior(pxw,px)
     post = pxw(:) ./ px(:);
 end
 
-function errorrate = calc_errorrate(post,px)
-    errorrate = post.*px;
+
+
+function errorrate = calc_errorrate(post1,post2,px)
+    errorrate = quad(@integral,-15,20);
+    function inte = integral(x)
+        inte = calc_conditionalerrorrate(x,post1,post2)*px;
+    end
 end
 
-function errorrate = bayeserrorrate()
+function errorrate = bayeserrorrate(post)
+    min(post);
+end
+
+function errorrate = calc_conditionalerrorrate(x,post1,post2) 
+    if (4 > x) 
+        errorrate = post2;
+    else
+        errorrate = post1;
+    end
+end
     
-end
-
 % calculates the conditional error rate
 function errorrate = calc_conditionalerror(post1,post2)
     for i=1:length(post1)
