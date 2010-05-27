@@ -1,10 +1,10 @@
 function[] =  abgabe3_bsp1_1()
 
-
+clc;
 % the given propabilitys
 pw1 = 0.5;
 pw2 = 1 - pw1;
-scale = -5:0.1:10;
+scale = -5:0.01:10;
 
 %y11 = normcdf(scale,1.5,1);
 %y22 = normcdf(scale,3,1);
@@ -18,12 +18,13 @@ px =    calc_marginaldistribution(pxw1,pxw2);
 post1 = calc_posterior(pxw1,px);
 post2 = calc_posterior(pxw2,px);
 
-% get error rates
-
 % Conditional Error
-cond = calc_conditionalerror(post1,post2);
+cond = calc_conditionalerror(post1,post2,px);
 
-errorrate = calc_errorrate(post1,post2,px);
+% calculate the errorrate for boundary 4
+errorrate = calc_errorrate(pxw1,pxw2,4)
+% bayes Error
+bayes = calc_bayeserrorrate(pxw1,pxw2)
 
 
 plot(scale,pxw1,'blue')
@@ -36,18 +37,11 @@ plot(scale,post1,'blue:')
 hold on
 plot(scale,post2,'green:')
 hold on
-plot(scale,errorrate,'red--');
+%plot(scale,errorrate,'red--');
 %plot(scale,pw1-py11(:)+py22(:),'red--')
 hold on
 plot(scale,cond,'red')
 
-% plot(scale,py11,'blue--')
-% hold on
-% plot(scale,py22,'green--')
-% hold on
-% figure(2)
-% plot(scale,errorrate,'red--');
-errorrate
 
 end
 
@@ -67,30 +61,53 @@ function post = calc_posterior(pxw,px)
 end
 
 
-
-function errorrate = calc_errorrate(post1,post2,px)
-    errorrate = quad(@integral,-15,20);
-    function inte = integral(x)
-        inte = calc_conditionalerrorrate(x,post1,post2)*px;
+%this function calculates the errorrate to a specific boundary
+function errorrate = calc_errorrate(pxw1,pxw2,boundary)
+    sum = 0;
+    step=0.01;
+    steps=1;
+    x=-5.0;
+    while(x<10-step)   
+       %calc_conditionalerrorate(x,pxw1,pxw2)
+       px=calc_marginaldistribution(pxw1,pxw2);
+       post1=calc_posterior(pxw1,px).*px';
+       post2=calc_posterior(pxw2,px).*px';
+       if (x<boundary) 
+           errorx = post2(steps);
+       else
+           errorx = post1(steps);
+       end
+       sum = sum+errorx;
+       x=x+step;
+       steps=steps+1; 
     end
+    errorrate = sum/steps;
 end
 
-function errorrate = bayeserrorrate(post)
-    min(post);
-end
-
-function errorrate = calc_conditionalerrorrate(x,post1,post2) 
-    if (4 > x) 
-        errorrate = post2;
-    else
-        errorrate = post1;
+function errorrate = calc_bayeserrorrate(pxw1,pxw2)
+    %this function calculates the errorrate to a specific boundary
+    sum = 0;
+    step=0.01;
+    steps=1;
+    x=-5.0;
+    while(x<10-step)   
+       %calc_conditionalerrorate(x,pxw1,pxw2)
+       px=calc_marginaldistribution(pxw1,pxw2);
+       post1=calc_posterior(pxw1,px).*px';
+       post2=calc_posterior(pxw2,px).*px';
+       errorx = min([post1(steps),post2(steps)]).*px(steps);
+       sum = sum+errorx;
+       x=x+step;
+       steps=steps+1; 
     end
+    errorrate = sum/steps;
 end
+
     
 % calculates the conditional error rate
-function errorrate = calc_conditionalerror(post1,post2)
+function errorrate = calc_conditionalerror(post1,post2,px)
     for i=1:length(post1)
-        errorrate(i)=min([post1(i),post2(i)]);
+        errorrate(i)=min([post1(i),post2(i)]).*px(i);
     end
 end
 
