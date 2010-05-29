@@ -2,6 +2,9 @@
 
 function abgabe3_bsp3
 
+    global rows;
+    global cols;
+
     directory = 'faces';
     D = dir(directory) ; 
 
@@ -41,6 +44,10 @@ function abgabe3_bsp3
 
     %1. mean image calculation
     mean_img = mean(training,2);
+   
+%     figure
+    viewcolumn(mean_img); 
+    title('Mean Face');
 
     %2. A calculation
     % A = training - mean
@@ -51,7 +58,9 @@ function abgabe3_bsp3
         A(:,i) = training(:,i) - mean_img;
     end
     
+%     figure
     viewcolumn(A(:,1) + mean_img);
+    title('Trainings Face');
     
     %3. covariance matrix
     %dimension is the amount pf pictures, e.g. 69,
@@ -66,7 +75,12 @@ function abgabe3_bsp3
     
     %6. Transponse Trick: Multiply with A for the eigenvector of A * A'
     U = A * eigenvectors; 
-    U = normc(eigenvectors);
+    U = normc(U);
+  
+
+%     figure
+    viewcolumn(U(:,1));
+    title('Eigenface')
 
 
 end
@@ -75,26 +89,26 @@ function viewcolumn(image)
 
     global rows;
     global cols;
+    
+    colormap(gray)
     image_rs = reshape(image, rows, cols);
     imagesc(image_rs);
-    colormap(gray)
     axis image;
 end
 
 function [eigenvectors, eigenvalues] = eigsort(eigenvectors, eigenvalues)
     
+    %diag: there are only values in the diagonal 
     [eigenvalues, index] = sort(diag(eigenvalues), 'descend');
     
     temp = zeros(size(eigenvectors,1), size(eigenvectors,2));
     
-    for i=1 : size(index) 
+    for i=1 : size(index,1) 
        temp(:,i) = eigenvectors(:,index(i)); 
     end
     
     eigenvectors = temp;
 end
-
-
 
 
 
