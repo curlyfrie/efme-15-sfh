@@ -17,7 +17,7 @@ function abgabe3_bsp3
         k = 1;
         for i = 3 : size(D, 1)
             name = D(i).name;
-            if strcmp(name(length(name)-2:length(name)), 'png')
+            if strcmp(name(length(name)-2:length(name)), 'gif')
                  I_temp = imread (fullfile(directory,name));
                 [rows cols] = size(I_temp);
 
@@ -80,8 +80,22 @@ function abgabe3_bsp3
 
 %     figure
     viewcolumn(U(:,1));
-    title('Eigenface')
-
+    title('Eigenface')   
+    
+    comp = U' * (test - mean_img);
+    
+    %used components
+    usedcomp = 60;
+    
+    reconstruct =  U(:, 1:usedcomp) * comp(1:usedcomp) + mean_img;
+    
+%     figure
+    viewcolumn(reconstruct);
+    title('Reconstructed Face')
+    
+%     figure
+    viewcolumn(test);
+    title('Original')
 
 end
 
@@ -90,7 +104,7 @@ function viewcolumn(image)
     global rows;
     global cols;
     
-    colormap(gray)
+    colormap(gray(256))
     image_rs = reshape(image, rows, cols);
     imagesc(image_rs);
     axis image;
