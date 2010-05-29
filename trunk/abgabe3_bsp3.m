@@ -2,6 +2,9 @@
 
 function abgabe3_bsp3
 
+clc;
+close all;
+
     global rows;
     global cols;
     
@@ -12,7 +15,7 @@ function abgabe3_bsp3
     test = zeros(14950,1);
     training = zeros(14950,76);
 
-        disp('Trainingset:');
+        disp('Trainingsset:');
         j = 1;
         k = 1;
         for i = 3 : size(D, 1)
@@ -29,6 +32,7 @@ function abgabe3_bsp3
                 I_temp = double(reshape(I_temp, rows*cols, 1));
 
 %alle bilder ausgeben
+%  figure('Name','All Facees','NumberTitle','off')
 %                subplot(8,10,i);
 %                viewcolumn(I_temp);
                 
@@ -54,9 +58,8 @@ function abgabe3_bsp3
     %1. mean image calculation
     mean_img = mean(training,2);
    
-    figure
+    figure('Name','Mean Face','NumberTitle','off')
     viewcolumn(mean_img); 
-    title('Mean Face');
 
     %2. A calculation
     % A = training - mean
@@ -67,12 +70,11 @@ function abgabe3_bsp3
         A(:,i) = training(:,i) - mean_img;
     end
     
-    figure
+    figure('Name','Trainings Face 1: A + meanimage','NumberTitle','off')
     viewcolumn(A(:,1) + mean_img);
-    title('Trainings Face 1: A + meanimage');
     
         
-    figure('Name','Alle Trainingfaces','NumberTitle','off')
+    figure('Name','All Trainingfaces','NumberTitle','off')
     for i=1:size(training,2)
         subplot(8,10,i);
         viewcolumn(training(:,i));
@@ -92,23 +94,29 @@ function abgabe3_bsp3
     %6. Transponse Trick: Multiply with A for the eigenvector of A * A'
     U = A * eigenvectors; 
     U = normc(U);
-    
-    figure('Name','Alle Eigenfaces','NumberTitle','off')
+        
+    figure('Name','All Eigenfaces','NumberTitle','off')
     for i=1:size(U,2)
         subplot(8,10,i);
         viewcolumn(U(:,i));
     end
     
-    comp = U' * (test - mean_img);
+    %calculate the coefficients
+    comp = coeff(U, training(:,15), mean_img);
     
-    %used components
+    %used components for reconstruction
     usedcomp = 10;
+    %reconstruction face
+    recface =  reconstruction(U,comp, mean_img, usedcomp);
     
-    reconstruct =  U(:, 1:usedcomp) * comp(1:usedcomp) + mean_img;
+    figure('Name','Reconstructed Face','NumberTitle','off')
+    viewcolumn(recface);
     
-    figure
-    viewcolumn(reconstruct);
-    title('Reconstructed Face')
+    %used components for animated reconstruction
+    usedcomp = 69;
+    %animation
+    animate(U, comp, mean_img, usedcomp);
+
 
 end
 
@@ -137,7 +145,25 @@ function [eigenvectors, eigenvalues] = eigsort(eigenvectors, eigenvalues)
     eigenvectors = temp;
 end
 
+function[comp] = coeff(U, test, mean_img)
+    comp = U' * (test - mean_img);
+end
 
+function[recface] = reconstruction(U,comp, mean_img, usedcomp)
+    recface = U(:, 1:usedcomp) * comp(1:usedcomp) + mean_img;
+end
 
+function animate(U, comp, mean_img, usedcomp)
+    
+figure('Name','Animated Reconstruction (pause = 0,5)','NumberTitle','off')
+
+disp('Animated Reconstruction - Progress:');
+
+    for i=1 : usedcomp   
+        viewcolumn(reconstruction(U,comp, mean_img, i));
+        pause(0.5)
+        disp([num2str(i), ' von ', num2str(usedcomp)])
+    end
+end
 
 
