@@ -9,11 +9,13 @@ close all;
     global cols;
     
     directory = 'faces';
-    D = dir(directory) ; 
+    D = dir(directory);
 
     %allocate
     test = zeros(14950,1);
-    training = zeros(14950,76);
+    
+    %all faces - including own faces
+    training_all = zeros(14950,76);
 
         disp('Trainingsset:');
         j = 1;
@@ -47,28 +49,42 @@ close all;
                     title('Original')
                     
                 else
-                    training(:,j) = I_temp; 
+                    training_all(:,j) = I_temp; 
                     j = j+1;
                     disp(D(i).name);
 
                 end
             end
         end
-
+        
+    %trainingsset without own faces    
+    training = training_all(:,1:69);
+        
+        
     %1. mean image calculation
     mean_img = mean(training,2);
+    mean_img_all = mean(training_all,2);
    
     figure('Name','Mean Face','NumberTitle','off')
     viewcolumn(mean_img); 
+    
+    figure('Name','Mean Face - with own faces','NumberTitle','off')
+    viewcolumn(mean_img_all); 
 
     %2. A calculation
     % A = training - mean
     
     A = zeros(size(training,1),size(training,2));
-
+    A_all = zeros(size(training_all,1),size(training_all,2));
+     
     for i = 1 : size(training,2)
         A(:,i) = training(:,i) - mean_img;
     end
+    
+    for i = 1 : size(training_all,2)
+        A_all(:,i) = training_all(:,i) - mean_img_all;
+    end
+
     
     figure('Name','Trainings Face 1: A + meanimage','NumberTitle','off')
     viewcolumn(A(:,1) + mean_img);
@@ -80,20 +96,32 @@ close all;
         viewcolumn(training(:,i));
     end
     
+        figure('Name','All Trainingfaces + own','NumberTitle','off')
+    for i=1:size(training_all,2)
+        subplot(8,10,i);
+        viewcolumn(training_all(:,i));
+    end
+    
     %3. covariance matrix
     %dimension is the amount pf pictures, e.g. 69,
     %not the amount of pixels.
-    cov = A'*A;
+    cov = A' * A;
+    cov_all = A_all' * A_all;
     
     %4. compute the eigenvectors and eigenvalues from A' * A
     [eigenvectors,eigenvalues] = eig(cov);
+    [eigenvectors_all,eigenvalues_all] = eig(cov_all);
     
     %5. sort the eigenvectors and eigenvalues
     [eigenvectors,eigenvalues] = eigsort(eigenvectors, eigenvalues);
+    [eigenvectors_all,eigenvalues_all] = eigsort(eigenvectors_all, eigenvalues_all);
     
     %6. Transponse Trick: Multiply with A for the eigenvector of A * A'
     U = A * eigenvectors; 
     U = normc(U);
+    
+    U_all = A_all * eigenvectors_all; 
+    U_all = normc(U_all);
         
     figure('Name','All Eigenfaces','NumberTitle','off')
     for i=1:size(U,2)
@@ -101,6 +129,15 @@ close all;
         viewcolumn(U(:,i));
     end
     
+    figure('Name','All Eigenfaces + own faces','NumberTitle','off')
+    for i=1:size(U_all,2)
+        subplot(8,10,i);
+        viewcolumn(U_all(:,i));
+    end
+    
+%    
+%   reconstruction of a face from trainingsset
+%
     %calculate the coefficients
     comp = coeff(U, training(:,15), mean_img);
     
@@ -109,15 +146,55 @@ close all;
     %reconstruction face
     recface =  reconstruction(U,comp, mean_img, usedcomp);
     
-    figure('Name','Reconstructed Face','NumberTitle','off')
+    figure('Name',['Reconstructed Face using ',num2str(usedcomp),' components'],'NumberTitle','off')
     viewcolumn(recface);
     
     %used components for animated reconstruction
     usedcomp = 69;
     %animation
-    animate(U, comp, mean_img, usedcomp);
+    animate(U, comp, mean_img, usedcomp, 'reconstruction of a face from trainingsset');
+    
+     
+%    
+%   reconstruction of the test face (not in the trainingsset)
+%
+    %calculate the coefficients
+    comp = coeff(U, test, mean_img);
+    
+    %used components for reconstruction
+    usedcomp = 10;
+    %reconstruction face
+    recface =  reconstruction(U,comp, mean_img, usedcomp);
+    
+    figure('Name',['Reconstructed Face using ',num2str(usedcomp),' components'],'NumberTitle','off')
+    viewcolumn(recface);
+    
+    %used components for animated reconstruction
+    usedcomp = 69;
+    %animation
+    animate(U, comp, mean_img, usedcomp, 'reconstruction of the test face (not in the trainingsset)');
+    
+    
+%    
+%   reconstruction the own face (is in trainingsset)
+%
+    %calculate the coefficients
+    comp_all = coeff(U_all, training_all(:,74), mean_img_all);
+    
+    %used components for reconstruction
+    usedcomp_all = 10;
+    %reconstruction face
+    recface_all =  reconstruction(U_all,comp_all, mean_img_all, usedcomp_all);
+    
+    figure('Name',['Reconstructed Face using ',num2str(usedcomp_all),' components'],'NumberTitle','off')
+    viewcolumn(recface_all);
+    
+    %used components for animated reconstruction
+    usedcomp_all = 76;
+    %animation
+    animate(U_all, comp_all, mean_img_all, usedcomp_all, 'reconstruction the own face (is in trainingsset_all)');
 
-
+   
 end
 
 function viewcolumn(image)
@@ -153,15 +230,15 @@ function[recface] = reconstruction(U,comp, mean_img, usedcomp)
     recface = U(:, 1:usedcomp) * comp(1:usedcomp) + mean_img;
 end
 
-function animate(U, comp, mean_img, usedcomp)
+function animate(U, comp, mean_img, usedcomp, name)
     
-figure('Name','Animated Reconstruction (pause = 0,5)','NumberTitle','off')
+figure('Name',['Animated Reconstruction (pause = 0,5) ', name],'NumberTitle','off')
 
 disp('Animated Reconstruction - Progress:');
 
     for i=1 : usedcomp   
         viewcolumn(reconstruction(U,comp, mean_img, i));
-        pause(0.5)
+        pause(0.01)
         disp([num2str(i), ' von ', num2str(usedcomp)])
     end
 end
