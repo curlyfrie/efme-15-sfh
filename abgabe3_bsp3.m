@@ -4,13 +4,13 @@ function abgabe3_bsp3
 
     global rows;
     global cols;
-
+    
     directory = 'faces';
     D = dir(directory) ; 
 
     %allocate
     test = zeros(14950,1);
-    training = zeros(14950,69);
+    training = zeros(14950,76);
 
         disp('Trainingset:');
         j = 1;
@@ -28,11 +28,20 @@ function abgabe3_bsp3
                 %bild in eine spalte schreiben
                 I_temp = double(reshape(I_temp, rows*cols, 1));
 
+%alle bilder ausgeben
+%                subplot(8,10,i);
+%                viewcolumn(I_temp);
+                
                 %subject01_normal als testset
                 %rest als training
                 if (strfind(name, 'subject01_normal'))
                     test(:,k) = I_temp; 
                     k = k+1;
+                    
+                    figure
+                    viewcolumn(I_temp);
+                    title('Original')
+                    
                 else
                     training(:,j) = I_temp; 
                     j = j+1;
@@ -45,7 +54,7 @@ function abgabe3_bsp3
     %1. mean image calculation
     mean_img = mean(training,2);
    
-%     figure
+    figure
     viewcolumn(mean_img); 
     title('Mean Face');
 
@@ -58,9 +67,16 @@ function abgabe3_bsp3
         A(:,i) = training(:,i) - mean_img;
     end
     
-%     figure
+    figure
     viewcolumn(A(:,1) + mean_img);
-    title('Trainings Face');
+    title('Trainings Face 1: A + meanimage');
+    
+        
+    figure('Name','Alle Trainingfaces','NumberTitle','off')
+    for i=1:size(training,2)
+        subplot(8,10,i);
+        viewcolumn(training(:,i));
+    end
     
     %3. covariance matrix
     %dimension is the amount pf pictures, e.g. 69,
@@ -76,26 +92,23 @@ function abgabe3_bsp3
     %6. Transponse Trick: Multiply with A for the eigenvector of A * A'
     U = A * eigenvectors; 
     U = normc(U);
-  
-
-%     figure
-    viewcolumn(U(:,1));
-    title('Eigenface')   
+    
+    figure('Name','Alle Eigenfaces','NumberTitle','off')
+    for i=1:size(U,2)
+        subplot(8,10,i);
+        viewcolumn(U(:,i));
+    end
     
     comp = U' * (test - mean_img);
     
     %used components
-    usedcomp = 60;
+    usedcomp = 10;
     
     reconstruct =  U(:, 1:usedcomp) * comp(1:usedcomp) + mean_img;
     
-%     figure
+    figure
     viewcolumn(reconstruct);
     title('Reconstructed Face')
-    
-%     figure
-    viewcolumn(test);
-    title('Original')
 
 end
 
