@@ -1,8 +1,8 @@
 function[] =  abgabe3_bsp1_1(pw1)
 
-
+disp(['----- P(w1)= ',num2str(pw1),' -----']);
 % the given propabilitys
-%pw1 = 0.5;
+%pw1 = 0.9;
 pw2 = 1 - pw1;
 scale = -5:0.01:10; 
 
@@ -20,28 +20,31 @@ errorrate = calc_errorrate(pw1,4)
 bayes = calc_bayeserrorrate(pw1)
 
 
-figure(1)
-subplot(1,4,1);
+figure('name',num2str(pw1))
+subplot(5,1,1);
 plot(scale,pxw1,'blue')
 hold on
 plot(scale,pxw2,'green')
 title('p(x|w)')
 
-subplot(1,4,2)
+subplot(5,1,2)
 plot(scale,px,'black')
 title('evidence')
 
-subplot(1,4,3)
-plot(scale,post1,'blue:')
+subplot(5,1,3)
+plot(scale,post1,'blue')
 hold on
-plot(scale,post2,'green:')
+plot(scale,post2,'green')
 title('posteriors')
 
+subplot(5,1,4)
+plot(scale,plot_conditionalerror(post1,post2,px,4),'red');
+title('conditional error rate')
 
-subplot(1,4,4)
-plot(scale,calc_bayeserrorate(scale,pw1),'red')
-hold on
+subplot(5,1,5)
+plot(scale,plot_bayeserror(post1,post2,px),'red');
 title('bayes error rate')
+
 end
 
 % calculate p(x | w_i) 
@@ -113,14 +116,27 @@ function errorx = calc_conderrorate(x,pw1,boundary)
    pxw2=calc_pxw(1-pw1,x,3,1);
    px=calc_marginaldistribution(pxw1,pxw2);
    
-   if (x<boundary) 
+   if (x>boundary) 
        errorx = calc_posterior(pxw2,px)*px;
    else
        errorx = calc_posterior(pxw1,px)*px;
    end   
 end
 
+function errorrate = plot_bayeserror(post1,post2,px)
+    for i=1:length(post1)
+        errorrate(i)=min([post1(i),post2(i)]).*px(i);
+    end
+end
 
+function errorrate = plot_conditionalerror(post1,post2,px,boundary)
+    x=-5;
+    step=0.01;
+    for i=1:length(post1)
+        errorrate(i) = [post1(x<boundary) post2(x>=boundary)]*px(i);
+        x=x+step;
+    end
+end
     
 
 
