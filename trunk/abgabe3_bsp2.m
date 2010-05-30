@@ -28,7 +28,7 @@ Q = coeff(1,2).quadratic;
 f = sprintf('0 = %g + %g*x + %g*y + %g*x^2 + %g*x.*y + %g*y.^2', ...
             K,L,Q(1,1),Q(1,2)+Q(2,1),Q(2,2));
 ezplot(f,[1 11 -1 7]);
-title('Discriminant functions with Matlab');
+title('Discriminant function with Matlab');
 
 
 figure('Name', 'Hand - Covariance Matrix')
@@ -55,3 +55,25 @@ gscatter(meanb(1),meanb(2));
 id = ezplot('-0.5*x.^2 + 9*x - 0.5*y.^2 + 3*y - 45 - log(0.5) = -0.5*x.^2 + 3*x - 0.5*y.^2 + 3*y - 9 - log(0.5)');
 set(id, 'color', 'b');
 title('Discriminant function by hand (identity)');
+
+
+figure('Name', 'Matlab - Identity Matrix');
+hold on;
+gscatter(C(1,:),C(2,:),gr, 'gm'); 
+gscatter(meana(1),meana(2));
+gscatter(meanb(1),meanb(2));
+
+plot(meanb, meana);
+
+[X,Y] = meshgrid(linspace(1,11),linspace(-1,7));
+X = X(:); Y = Y(:);
+[c,err,P,logp,coeff] = classify([X Y],C',gr,'linear');
+gscatter(X,Y,c);
+
+% Draw boundary between two regions - using testsets
+K = coeff(1,2).const
+L = coeff(1,2).linear
+f = sprintf('0 = %g + %g*x + %g*y', ...
+            K,L(1),L(2));
+ezplot(f,[1 11 -1 7]);
+title('Discriminant function with Matlab (identity)');
