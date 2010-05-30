@@ -11,8 +11,8 @@ meanb = mean (B,2);
 figure('Name', 'Matlab - Covariance Matrix');
 hold on;
 gscatter(C(1,:),C(2,:),gr, 'gm'); 
-gscatter(meana(1),meana(2), 'Color', 'blue');
-gscatter(meanb(1),meanb(2), 'Color', 'blue');
+gscatter(meana(1),meana(2));
+gscatter(meanb(1),meanb(2));
 
 plot(meanb, meana);
 
@@ -37,10 +37,10 @@ grid on;
 
 % print points, mean
 gscatter(C(1,:),C(2,:),gr, 'gm'); 
-gscatter(meana(1),meana(2), 'Color', 'blue');
-gscatter(meanb(1),meanb(2), 'Color', 'blue');
+gscatter(meana(1),meana(2));
+gscatter(meanb(1),meanb(2));
 
-% put in calculated discriminant function
+% put in calculated discriminan
 cov = ezplot('-4.5*x + 0.333*y^2 - 2*y + 28.9014');
 set(cov, 'color', 'b');
 title('Discriminant function by hand (covariance)');
@@ -50,8 +50,8 @@ hold on;
 grid on;
 
 gscatter(C(1,:),C(2,:),gr, 'gm'); 
-gscatter(meana(1),meana(2), 'Color', 'blue');
-gscatter(meanb(1),meanb(2), 'Color', 'blue');
+gscatter(meana(1),meana(2));
+gscatter(meanb(1),meanb(2));
 id = ezplot('-0.5*x.^2 + 9*x - 0.5*y.^2 + 3*y - 45 - log(0.5) = -0.5*x.^2 + 3*x - 0.5*y.^2 + 3*y - 9 - log(0.5)');
 set(id, 'color', 'b');
 title('Discriminant function by hand (identity)');
