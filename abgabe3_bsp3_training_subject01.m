@@ -16,13 +16,13 @@ close all;
     
     %all faces - including own faces
     %testset: subject01_normal
-    training_all = zeros(14950,76);
+%     training_all = zeros(14950,76);
     
     %uncomment all the as 'testset subjet01' marked comments
     %to use another testset (and comment the corresponding lines)
 
 %     testset: subject01
-%     training_all = zeros(14950,70);
+    training_all = zeros(14950,70);
     
         disp('Trainingsset:');
         j = 1;
@@ -51,9 +51,9 @@ close all;
                 %rest als training
                 
 %                 testset: subject01
-%                 if (strfind(name, 'subject01'))
+                if (strfind(name, 'subject01'))
 %                 
-                if (strfind(name, 'subject01_normal'))
+%                 if (strfind(name, 'subject01_normal'))
                     test(:,k) = I_temp; 
                     k = k+1;
                     
@@ -71,10 +71,10 @@ close all;
         end
         
 %     trainingsset without own faces, testset: subject01    
-%     training = training_all(:,1:63);
+    training = training_all(:,1:63);
         
     %trainingsset without own faces, testset: subject01_normal
-    training = training_all(:,1:69);
+%     training = training_all(:,1:69);
         
         
     %1. mean image calculation
@@ -185,9 +185,9 @@ close all;
     %used components for animated reconstruction
     
 %     testset subject01
-%     usedcomp = 63;
+    usedcomp = 63;
 
-    usedcomp = 69;
+%     usedcomp = 69;
     %animation
     animate(U, comp, mean_img, usedcomp, '1. Reconstruction of a face from trainingsset');
     
@@ -202,9 +202,9 @@ close all;
     %calculate the coefficients
     
 %     testset subject01
-%     comp = coeff(U, test(:,2), mean_img);
+    comp = coeff(U, test(:,5), mean_img);
 
-    comp = coeff(U, test, mean_img);
+%     comp = coeff(U, test, mean_img);
     
     %used components for reconstruction
     usedcomp = 10;
@@ -217,18 +217,18 @@ close all;
     %used components for animated reconstruction
     
 %     testset subject01
-%     usedcomp = 63;
-
     usedcomp = 60;
+
+%     usedcomp = 60;
     %animation
     animate(U, comp, mean_img, usedcomp, '2. Reconstruction of the test face (not in the trainingsset)');
     
-    figure('Name','Original Face - Reconstruction 2','NumberTitle','off')
-    viewcolumn(test);
-    
-%     testset subject01
 %     figure('Name','Original Face - Reconstruction 2','NumberTitle','off')
-%     viewcolumn(test(:,2));
+%     viewcolumn(test);
+%     
+%     testset subject01
+    figure('Name','Original Face - Reconstruction 2','NumberTitle','off')
+    viewcolumn(test(:,5));
     
 % % % % %    
 % % % % %   Reconstruction 3 the own face (not in trainingsset)
@@ -237,16 +237,16 @@ close all;
     %calculate the coefficients
     
 %     testset subject01
-%     comp = coeff(U, training_all(:,68), mean_img);
+    comp = coeff(U, training_all(:,68), mean_img);
     
-    comp = coeff(U, training_all(:,74), mean_img);
+%     comp = coeff(U, training_all(:,74), mean_img);
     
     %used components for reconstruction
     
 %     testset subject01
-%     usedcomp = 63;
-
     usedcomp = 10;
+
+%     usedcomp = 10;
     %reconstruction face
     recface =  reconstruction(U,comp, mean_img, usedcomp);
     
@@ -257,18 +257,18 @@ close all;
     %used components for animated reconstruction
 
 %   testset subject01
-%   usedcomp = 63;
+  usedcomp = 50;
     
-    usedcomp = 69;
+%     usedcomp = 69;
     %animation
     animate(U, comp, mean_img, usedcomp, '3. Reconstruction the own face (not in trainingsset_all)');
     
-    figure('Name','Original Face - Reconstruction 3','NumberTitle','off')
-    viewcolumn(training_all(:,74));
+%     figure('Name','Original Face - Reconstruction 3','NumberTitle','off')
+%     viewcolumn(training_all(:,74));
     
 %     testset subject01
-%     figure('Name','Original Face - Reconstruction 3','NumberTitle','off')
-%     viewcolumn(training_all(:,68));
+    figure('Name','Original Face - Reconstruction 3','NumberTitle','off')
+    viewcolumn(training_all(:,68));
     
     
     
@@ -279,9 +279,9 @@ close all;
     %calculate the coefficients
    
 %     testset subject01
-%     comp_all = coeff(U_all, training_all(:,68), mean_img_all);
-%     
-    comp_all = coeff(U_all, training_all(:,74), mean_img_all);
+    comp_all = coeff(U_all, training_all(:,68), mean_img_all);
+    
+%     comp_all = coeff(U_all, training_all(:,74), mean_img_all);
     
     %used components for reconstruction
     usedcomp_all = 10;
@@ -295,18 +295,18 @@ close all;
     %used components for animated reconstruction
     
 %   testset subject01
-%   usedcomp_all = 70;
+  usedcomp_all = 70;
     
-    usedcomp_all = 76;
+%     usedcomp_all = 76;
     %animation
     animate(U_all, comp_all, mean_img_all, usedcomp_all, '4. Reconstruction the own face (is in trainingsset_all)');
     
-    figure('Name','Original Face - Reconstruction 4','NumberTitle','off')
-    viewcolumn(training_all(:,74));
+%     figure('Name','Original Face - Reconstruction 4','NumberTitle','off')
+%     viewcolumn(training_all(:,74));
     
 %     testset subject01
-%     figure('Name','Original Face - Reconstruction 4','NumberTitle','off')
-%     viewcolumn(training_all(:,68));
+    figure('Name','Original Face - Reconstruction 4','NumberTitle','off')
+    viewcolumn(training_all(:,68));
     
 
    
