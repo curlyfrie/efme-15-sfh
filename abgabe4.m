@@ -16,11 +16,11 @@ CONTROL = 1;
 file = 'data/pima-indians-diabetes.data';
 data = load(file);
 
-errors = zeros(PICS,1);
-
 training = data(1:300, :);
 testing = data(301:768, :);
 PICS = length(testing);
+
+errors = zeros(PICS,1);
 
 % Mahalanobis Distance classifier
 %     testing = 'Mahalanobis - alle Werte' 
@@ -120,13 +120,16 @@ for CONTROL = 1:4
 
  end
 
+ sumerrors = sum(errors);
+ prozent = (sumerrors*100)/PICS;
+ 
     if CONTROL == 1
-        disp(['full covarianz for a class: sumerrors = ', num2str(sum(errors)),' prozent = ', num2str((sumerrors*100)/PICS)]);
+        disp(['full covarianz for a class: sumerrors = ', num2str(sumerrors),' prozent = ', num2str(prozent)]);
     elseif CONTROL == 2
-        disp(['covarianz diagonal: sumerrors = ', num2str(sum(errors)),' prozent = ', num2str((sumerrors*100)/PICS)]);
+        disp(['covarianz diagonal: sumerrors = ', num2str(sumerrors),' prozent = ', num2str(prozent)]);
     elseif CONTROL == 3
-        disp(['covarianz overall: sumerrors = ', num2str(sum(errors)),' prozent = ', num2str((sumerrors*100)/PICS)]);
+        disp(['covarianz overall: sumerrors = ', num2str(sumerrors),' prozent = ', num2str(prozent)]);
     elseif CONTROL == 4 
-        disp(['covarianz overall mean: sumerrors = ', num2str(sum(errors)),' prozent = ', num2str((sumerrors*100)/PICS)]);
+        disp(['covarianz overall mean: sumerrors = ', num2str(sumerrors),' prozent = ', num2str(prozent)]);
     end
 end
