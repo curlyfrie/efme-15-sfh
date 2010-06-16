@@ -7,16 +7,17 @@ clear;
 
 file = 'data/pima-indians-diabetes.data';
 data = load(file);
+n = 500;
 
-training = data(1:500, :);
-testing = data(501:768, :);
+training = data(1:n, :);
+testing = data(n+1:768, :);
 PICS = length(testing);
 
 %MAHALANOBIS
 %%%%%%%%%%%%%
 
 %with all features
-disp(['Mahalnobis with all features (training 1-500, test 501-768)',10]);
+disp(['Mahalanobis with all features (training 1-500, test 501-768)',10]);
 mahala (training, testing, PICS)
 
 %without features 4 and 5, because most of them are 0 (mode(data(:,4)) = 0)
@@ -31,9 +32,54 @@ kNN = 20;
 disp([10,10,'kNN with all features (training 1-500, test 501-768)',10]);
 knn(training, testing, PICS,kNN,'kNN with all features')
 
-%without features 4 and 5, because most of them are 0 (mode(data(:,4)) = 0)
+% %without features 4 and 5, because most of them are 0 (mode(data(:,4)) = 0)
 disp([10,10,'kNN without feature 4 and 5 (training 1-500, test 501-768)',10]);
 knn (training(:,[1:3 6:9]), testing(:,[1:3 6:9]), PICS,kNN, 'kNN without feature 4 and 5')
+
+
+%PERCEPTRON
+%%%%%%%%%%%%%
+training_target = data(1:n, 9);
+testing_target = data(n+1:768, 9);
+
+training_target = training_target';
+testing_target = testing_target';
+
+% convert 0 to -1 for calc perceptron
+training_target(training_target(:,:) == 0) = -1;
+testing_target(testing_target(:,:) == 0) = -1;
+
+%with all features
+training = homogen(data(1:n, 1:8)');
+testing = homogen(data(n+1:768, 1:8)');
+
+% Perceptron    
+disp('Perceptron - 10 Zyklen, alle Daten')
+perco(training, training_target, 10, testing, testing_target, PICS);
+disp('Perceptron - 100 Zyklen, alle Daten')
+perco(training, training_target, 100, testing, testing_target, PICS);
+disp('Perceptron - 1 000 Zyklen, alle Daten')
+perco(training, training_target, 1000, testing, testing_target, PICS);
+disp('Perceptron - 10 000 Zyklen, alle Daten')
+perco(training, training_target, 10000, testing, testing_target, PICS);
+% disp('Perceptron - 100 000 Zyklen, alle Daten')
+% perco(training, training_target, 100000, testing, testing_target, PICS);
+%     
+%without features 4 and 5, because most of them are 0 (mode(data(:,4)) = 0)
+training = data(1:n, [1:3 6:8])';
+testing = data(n+1:768, [1:3 6:8])';
+
+% Perceptron    
+disp('Perceptron - 10 Zyklen, ohne 4,5')
+perco(training, training_target, 10, testing, testing_target, PICS);
+disp('Perceptron - 100 Zyklen, ohne 4,5')
+perco(training, training_target, 100, testing, testing_target, PICS);
+disp('Perceptron - 1 000 Zyklen, ohne 4,5')
+perco(training, training_target, 1000, testing, testing_target, PICS);
+disp('Perceptron - 10 000 Zyklen, ohne 4,5')
+perco(training, training_target, 10000, testing, testing_target, PICS);
+% disp('Perceptron - 100 000 Zyklen, ohne 4,5')
+% perco(training, training_target, 100000, testing, testing_target, PICS);
 
 function mahala (training, testing, PICS)
 
@@ -201,3 +247,50 @@ xlabel('kNN')
 ylabel('Errorrate %')
 axis([0 kNN  15 40]);
 
+
+function [x] = homogen(X)
+    
+    [m, n] = size(X);
+    x = ones(m+1, n);
+    
+    for i = 2:m+1
+        for j = 1:n
+           x(i, j) = X(i-1, j);
+        end
+    end
+    
+function [w] = perco (training, training_target, maxEpoches, testing, testing_target, PICS)
+    [m, n] = size(training);
+    w = zeros(m, 1);
+    w(1) = 0;
+    
+    cycle = 0;
+    wrong = true;
+    
+    while (wrong == true) && (cycle < maxEpoches)
+        
+        cycle = cycle + 1;
+        wrong = false;
+        
+        for i = 1:n
+            if w'*(training(:,i)*training_target(i)) <= 0
+            
+                w = w + training(:,i)*training_target(i); 
+                wrong = true;
+            end
+        end
+    end
+
+    
+    % identify wrong classified objects
+    
+    dif_anz = 0;
+    [m, n] = size(testing);
+    for i=1:n
+       if sign(w'*testing(:, i)) ~= testing_target(i);
+           dif_anz=dif_anz+1;
+       end
+    end
+    
+    sprintf('Fehler: %d\n%6.3f%% korrekt erkannt', dif_anz, (PICS-dif_anz)/PICS*100)
+    
