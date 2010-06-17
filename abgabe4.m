@@ -10,7 +10,7 @@ data = load(file);
 n = 500;
 
 training = data(1:n, :);
-testing = data(n+1:768, :);
+testing = data(n+1:size(data), :);
 PICS = length(testing);
 
 %MAHALANOBIS
@@ -80,6 +80,18 @@ disp('Perceptron - 10 000 Zyklen, ohne 4,5')
 perco(training, training_target, 10000, testing, testing_target, PICS);
 % disp('Perceptron - 100 000 Zyklen, ohne 4,5')
 % perco(training, training_target, 100000, testing, testing_target, PICS);
+
+
+%NEURAL NETWORK
+%%%%%%%%%%%%%
+
+training = data(1:n, :);
+testing = data(n+1:size(data), :);
+disp('Neural Newtwork - alle Daten')
+neuralnetwork(training,testing);
+disp('Neural Newtwork - ohne 4,5')
+neuralnetwork(training(:,[1:3 6:9]),testing(:,[1:3 6:9]));
+
 
 function mahala (training, testing, PICS)
 
@@ -294,3 +306,69 @@ function [w] = perco (training, training_target, maxEpoches, testing, testing_ta
     
     sprintf('Fehler: %d\n%6.3f%% korrekt erkannt', dif_anz, (PICS-dif_anz)/PICS*100)
     
+    
+function [errorrate] = neuralnetwork(trainingset,testset)
+        
+    % just a little bit of declaration work and transposals
+    siz = size(trainingset,2);
+    trainingtarget = trainingset(:, siz)';
+    training = trainingset(:,1:siz-1)';
+    testingtarget=testset(:,siz);
+    testing = testset(:,1:siz-1)';
+
+
+    
+    % reates a two-layer network with 2 neurons in the hidden layer
+    % as trainingalgorithm trainlm is used
+    net = newff(training,trainingtarget,2,{},'trainlm');
+
+    % some settings (no one knows what they should mean
+    net.inputs{1}.processFcns = {'mapstd','processpca'};
+    net.inputs{1}.processParams{2}.maxfrac = 0.001;
+    net.outputs{2}.processFcns = {'mapstd'};
+    
+    % same here ??
+    net.trainParam.lr = 0.05;
+    net.trainParam.lr_inc = 1.05;
+
+    % show output in commandline
+    %net.trainParam.showCommandLine = true; 
+
+    % diplay network
+    %disp(net);
+    
+    % train the network based on trainingsset and trainingtarget
+    [net,tr] = train(net,training,trainingtarget);
+    % plot performance
+    plotperform(tr)
+
+   
+
+    % simulating the network and get all the variables (we are using 
+    [y,Pf,Af,E,perf]= sim(net,testing);
+
+    
+    % for the nex calculations we need to transpose the testingtargets
+    testingtarget=testingtarget';
+    
+    % if the simulated value is >0.5 its put into class 1 
+    % otherwise into 0
+    for i=1:length(y)
+        if (y(i)>0.5) 
+            ergebnis(i) = 1;
+        else 
+            ergebnis(i) = 0;
+        end
+
+        if ergebnis(i)~=testingtarget(i) 
+            errors(i) = 1;
+        end
+    end
+
+    % calculated errorrate based on classification above
+    errorrate=sum(errors)/length(testingtarget);
+    sprintf('Fehler: %d\n%6.3f%% korrekt erkannt', sum(errors), (1-errorrate)*100)
+    
+    % errorrate based on Network errors calculated by sim() 
+    sim_erorrate = sum(E)/length(E);
+
