@@ -13,6 +13,9 @@ training = data(1:n, :);
 testing = data(n+1:size(data), :);
 PICS = length(testing);
 
+
+features = [1:3 6:9]
+
 %MAHALANOBIS
 %%%%%%%%%%%%%
 
@@ -22,7 +25,7 @@ mahala (training, testing, PICS)
 
 %without features 4 and 5, because most of them are 0 (mode(data(:,4)) = 0)
 disp([10,10,'Mahalnobis without feature 4 and 5 (training 1-500, test 501-768)',10]);
-mahala (training(:,[1:3 6:9]), testing(:,[1:3 6:9]), PICS)
+mahala (training(:,features), testing(:,features), PICS)
 
 %KNN
 %%%%%%%%%%%%%
@@ -34,7 +37,7 @@ knn(training, testing, PICS,kNN,'kNN with all features')
 
 % %without features 4 and 5, because most of them are 0 (mode(data(:,4)) = 0)
 disp([10,10,'kNN without feature 4 and 5 (training 1-500, test 501-768)',10]);
-knn (training(:,[1:3 6:9]), testing(:,[1:3 6:9]), PICS,kNN, 'kNN without feature 4 and 5')
+knn (training(:,features), testing(:,features), PICS,kNN, 'kNN without feature 4 and 5')
 
 
 %PERCEPTRON
@@ -66,8 +69,10 @@ perco(training, training_target, 10000, testing, testing_target, PICS);
 % perco(training, training_target, 100000, testing, testing_target, PICS);
 %     
 %without features 4 and 5, because most of them are 0 (mode(data(:,4)) = 0)
-training = data(1:n, [1:3 6:8])';
-testing = data(n+1:768, [1:3 6:8])';
+
+pfeatures=features(1,1:length(features)-1)
+training = data(1:n, pfeatures)';
+testing = data(n+1:768,pfeatures)';
 
 % Perceptron    
 disp('Perceptron - 10 Zyklen, ohne 4,5')
@@ -90,7 +95,7 @@ testing = data(n+1:size(data), :);
 disp('Neural Newtwork - alle Daten')
 neuralnetwork(training,testing);
 disp('Neural Newtwork - ohne 4,5')
-neuralnetwork(training(:,[1:3 6:9]),testing(:,[1:3 6:9]));
+neuralnetwork(training(:,features),testing(:,features));
 
 
 function mahala (training, testing, PICS)
