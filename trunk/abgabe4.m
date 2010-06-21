@@ -327,12 +327,12 @@ function [errorrate] = neuralnetwork(trainingset,testset)
     % as trainingalgorithm trainlm is used
     net = newff(training,trainingtarget,2,{},'trainlm');
 
-    % some settings (no one knows what they should mean
+    % some settings 
     net.inputs{1}.processFcns = {'mapstd','processpca'};
     net.inputs{1}.processParams{2}.maxfrac = 0.001;
     net.outputs{2}.processFcns = {'mapstd'};
     
-    % same here ??
+    % and more of them
     net.trainParam.lr = 0.05;
     net.trainParam.lr_inc = 1.05;
 
